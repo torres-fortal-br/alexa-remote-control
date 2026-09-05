@@ -86,8 +86,9 @@
 # 2024-02-01: v0.21b changed the output of -lastalexa back to the output of devicelist.txt
 # 2024-04-06: v0.22 changed the date calculation once again, now the date processing ignores the actual cookie validity
 #                    and simply sets it to "now + COOKIE_LIFETIME"
-# 2025-11-07: v0.23 /api/bootstrap is gone, switched to /api/customer-status 
+# 2025-11-07: v0.23 /api/bootstrap is gone, switched to /api/customer-status
 #				(thanks once again to Ingo Fischer)
+# 2026-09-05: v0.24 customer-history-records-v2 (POST) replaced by customer-history-records (GET)
 #
 ###
 #
@@ -1137,8 +1138,8 @@ get_history()
 
 	RES=$(${CURL} ${OPTS} -s -b ${COOKIE} -A "${BROWSER}" -H "DNT: 1" -H "Connection: keep-alive" -L -w "%{http_code}" \
 	 	 -H "Content-Type: application/json; charset=UTF-8" -H "anti-csrftoken-a2z: $(cat ${TMP}/.alexa.activity.csrf)" \
-	 	 -H "csrf: $(awk "\$0 ~/.${AMAZON}.*csrf[ \\s\\t]+/ {print \$7}" ${COOKIE})" -X POST -d '{"previousRequestToken": null}'\
-		 "https://www.${AMAZON}/alexa-privacy/apd/rvh/customer-history-records-v2/?startTime=0&endTime=2147483647000&pageType=VOICE_HISTORY" -o ${TMP}/.alexa.activity.json)
+	 	 -H "csrf: $(awk "\$0 ~/.${AMAZON}.*csrf[ \\s\\t]+/ {print \$7}" ${COOKIE})" -X GET \
+		 "https://www.${AMAZON}/alexa-privacy/apd/rvh/customer-history-records?startTime=0&endTime=2147483647000&recordType=VOICE_HISTORY&maxRecordSize=50" -o ${TMP}/.alexa.activity.json)
 
 	# try again in case CSRF timed out
 	if [ $RES -ne 200 ] ; then
